@@ -24,14 +24,56 @@ def create_task():
 
 @app.route('/tasks', methods=['GET'])
 def get_tasks():
-    task_list = []
-    for task in tasks:
-        task_list.append(task.to_dict())
+    task_list = [task.to_dict() for task in tasks]
+
     output = {
         "tasks": task_list,
-        "total_tasks": 0
+        "total_tasks": len(task_list)
     }
     return jsonify(output)
+
+@app.route('/tasks/<int:id>', methods=['GET'])
+def get_task(id):
+    task = None
+    for t in tasks:
+        if t.id == id:
+            return jsonify(t.to_dict())
+    return jsonify({"mensagem": "Nao foi possivel encontrar a atividade"}), 404
+
+@app.route('/user/<int:username_id>', methods=['GET'])
+def show_usename(username_id):
+    print(username_id)
+    print(type(username_id))
+    return "%s" % username_id
+
+@app.route('/tasks/<int:id>', methods=['PUT'])
+def update_task(id):
+    
+    task = None
+    data = request.get_json()
+    for t in tasks:
+        if t.id == id:
+            task = t
+        print(task)
+        if task == None:
+            return jsonify({"mensagem": "Nao foi possivel encontrar a atividade"})
+        
+    task.title = data['title']
+    task.description = data['description']
+    task.completed = data['completed']
+    print(task)
+    return jsonify({"mensagem": "Tarefa completada com sucesso"})
+
+@app.route('/tasks/<int:id>', methods=['DELETE'])
+def delete_task(id):
+    task = None
+    for t in tasks:
+        if t.id == id:
+            task = t
+            break
+            
+    tasks.remove(task)
+    return ({"mensagem": "Taske deletada"})
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
